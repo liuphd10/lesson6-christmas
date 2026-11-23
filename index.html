@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>聖誕節快到了 代課網頁</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: one long lesson page in class order, sticky time-strip nav on top; each lesson block = teacher-facing steps + student-facing big text. */
+:root {
+  --bg: #F7F2E8;
+  --surface: #FFFDF8;
+  --surface-2: #EFE7D6;
+  --line: #E2D6BF;
+  --ink: #1F4D3A;
+  --text: #2E3A34;
+  --muted: #5B6861;
+  --red: #B23A2E;
+  --gold: #D9A32B;
+  --gold-ink: #2A2414;
+  --on-ink: #FBF6EC;
+  --c-dawen: #2B5C8A;
+  --c-mama: #B23A2E;
+  --c-wenwen: #7A3F8C;
+  --c-baba: #2F6B46;
+  --f-display: 'Nunito', 'Noto Sans TC', system-ui, sans-serif;
+  --f-zh: 'Noto Sans TC', 'Nunito', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121C17; --surface: #1A2820; --surface-2: #213328; --line: #2E4538;
+    --ink: #E6F0E8; --text: #D8E2DB; --muted: #9DB0A5; --red: #E8746A; --gold: #E5B74E; --gold-ink: #1E1A0E; --on-ink: #121C17;
+    --c-dawen: #7FAAD8; --c-mama: #E8746A; --c-wenwen: #BF92D1; --c-baba: #78BC92;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121C17; --surface: #1A2820; --surface-2: #213328; --line: #2E4538;
+  --ink: #E6F0E8; --text: #D8E2DB; --muted: #9DB0A5; --red: #E8746A; --gold: #E5B74E; --gold-ink: #1E1A0E; --on-ink: #121C17;
+  --c-dawen: #7FAAD8; --c-mama: #E8746A; --c-wenwen: #BF92D1; --c-baba: #78BC92;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--f-zh); font-size: 17px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+h1, h2, h3 { font-family: var(--f-display); color: var(--ink); text-wrap: balance; margin: 0; line-height: 1.2; }
+h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 900; }
+h3 { font-size: 22px; font-weight: 800; }
+p { margin: 0; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.py { font-family: var(--f-display); color: var(--muted); font-size: 0.9em; line-height: 1.35; }
+.hide-py .py { display: none; }
+.hl { color: var(--red); font-weight: 800; }
+
+/* top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; gap: 14px; padding-block: 10px; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-weight: 900; color: var(--ink); font-size: 17px; white-space: nowrap; }
+.brand small { color: var(--muted); font-weight: 600; margin-left: 6px; }
+.timeline { display: flex; gap: 6px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: thin; }
+.timeline a { flex: none; text-decoration: none; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; white-space: nowrap; }
+.timeline a b { font-family: var(--f-display); font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 700; margin-right: 6px; }
+.timeline a.now { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.timeline a.now b { color: var(--on-ink); }
+.toggle { border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 4px 14px; font-size: 14px; font-weight: 700; }
+.toggle[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+
+/* hero */
+.hero { padding-block: 40px 28px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; }
+.hero > * { min-width: 0; }
+.eyebrow { font-family: var(--f-display); font-weight: 800; color: var(--red); letter-spacing: 0.08em; font-size: 14px; }
+.hero h1 { font-size: clamp(40px, 6vw, 68px); font-weight: 900; margin-block: 8px 4px; }
+.hero .py { font-size: 20px; }
+.hero .meta { margin-top: 14px; color: var(--muted); }
+.hero img { width: 100%; border-radius: 24px; aspect-ratio: 1400 / 1016; object-fit: cover; }
+
+/* sections */
+section.block { padding-block: 36px; border-top: 1px solid var(--line); scroll-margin-top: 70px; }
+.block-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+.time { font-family: var(--f-display); font-variant-numeric: tabular-nums; font-weight: 800; color: var(--on-ink); background: var(--red); border-radius: 8px; padding: 2px 10px; font-size: 15px; }
+.block-head .py { font-size: 18px; }
+.step { margin-top: 28px; }
+.step-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.step-head .clock { font-family: var(--f-display); font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 700; font-size: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.grid5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.card .t { font-weight: 700; color: var(--ink); font-size: 19px; }
+.book { width: 100%; border-radius: 14px; background: #FFFFFF; border: 1px solid var(--line); }
+.bookref { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-height: 180px; border: 2px dashed var(--line); border-radius: var(--radius); padding: 24px; background: var(--surface); }
+.bookref b { font-size: 26px; color: var(--ink); font-family: var(--f-display); }
+.bookref span:last-child { color: var(--muted); }
+.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+
+details.note { margin-top: 14px; background: var(--surface-2); border-radius: 14px; padding: 10px 16px; font-size: 15px; }
+details.note summary { font-weight: 700; color: var(--ink); }
+details.note[open] summary { margin-bottom: 6px; }
+details.note ul { margin: 0; padding-left: 20px; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; border: none; border-radius: 999px; padding: 8px 18px; font-weight: 700; background: var(--ink); color: var(--on-ink); }
+.btn.ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+.btn.gold { background: var(--gold); color: var(--gold-ink); }
+.btn svg { width: 18px; height: 18px; fill: currentColor; }
+.say { border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; width: 34px; height: 34px; display: inline-grid; place-items: center; flex: none; }
+.say svg { width: 16px; height: 16px; fill: currentColor; }
+.say.speaking { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+
+.reveal-btn { align-self: flex-start; border: 1px dashed var(--muted); background: transparent; color: var(--muted); border-radius: 999px; padding: 2px 12px; font-size: 14px; }
+.answer { color: var(--red); font-weight: 700; }
+.answer[hidden] { display: none; }
+
+/* video */
+.player { background: #0F1512; border-radius: 22px; overflow: hidden; max-width: 960px; }
+.stage { position: relative; aspect-ratio: 16 / 10; overflow: hidden; max-width: 100%; }
+.stage img.scene { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; transition: transform 0.9s cubic-bezier(.3,.7,.3,1); }
+.tag { position: absolute; transform: translate(-50%, -100%); background: #FFFDF8; color: #1F2A24; font-weight: 800; border-radius: 14px; padding: 4px 12px; font-size: clamp(13px, 2vw, 18px); display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity .4s; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.tag.on { opacity: 1; }
+.tag::after { content: ""; position: absolute; left: 50%; bottom: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: #FFFDF8; transform: translateX(-50%); }
+.waves { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
+.waves i { width: 3px; background: #B23A2E; border-radius: 2px; animation: wave .9s infinite ease-in-out; }
+.waves i:nth-child(2) { animation-delay: .15s; } .waves i:nth-child(3) { animation-delay: .3s; }
+@keyframes wave { 0%,100% { height: 4px; } 50% { height: 14px; } }
+.subs { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 24px 18px; background: linear-gradient(transparent, rgba(8,12,10,.82) 45%); color: #FFFFFF; text-align: center; }
+.subs .zh { font-size: clamp(18px, 3.2vw, 32px); font-weight: 700; line-height: 1.35; }
+.subs .zh b { color: #FFD36B; }
+.subs .pys { font-family: var(--f-display); font-size: clamp(13px, 2vw, 19px); color: #D9E4DC; margin-top: 2px; }
+.hide-py .subs .pys { display: none; }
+.shadow-cue { display: inline-block; margin-top: 8px; background: #D9A32B; color: #1E1A0E; border-radius: 999px; padding: 2px 14px; font-weight: 800; font-size: clamp(13px, 2vw, 17px); }
+.cover { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; background: rgba(10,16,13,.62); color: #FFFFFF; padding: 20px; }
+.cover h3 { color: #FFFFFF; font-size: clamp(24px, 4vw, 40px); }
+.cover p { color: #E3ECE6; margin-top: 6px; }
+.cover .btn { margin-top: 16px; background: #D9A32B; color: #1E1A0E; font-size: 18px; padding: 10px 26px; }
+.controls { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #18211C; color: #E6EEE8; flex-wrap: wrap; }
+.controls button.c { background: #26332C; color: #E6EEE8; border: none; border-radius: 999px; padding: 6px 14px; font-weight: 700; display: inline-flex; gap: 6px; align-items: center; font-size: 14px; }
+.controls button.c svg { width: 16px; height: 16px; fill: currentColor; }
+.controls button.c[aria-pressed="true"] { background: #D9A32B; color: #1E1A0E; }
+.dots { display: flex; gap: 4px; flex: 1; min-width: 120px; }
+.dots button { flex: 1; height: 8px; border-radius: 4px; border: none; background: #3A4A41; padding: 0; }
+.dots button.done { background: #8DB89E; }
+.dots button.cur { background: #D9A32B; }
+.voice-note { font-size: 13px; color: #B9C8BF; width: 100%; }
+
+.locked { position: relative; }
+.locked > .lock-body { filter: blur(3px); opacity: .45; pointer-events: none; user-select: none; }
+.lock-msg { display: none; }
+.locked > .lock-msg { display: flex; position: absolute; inset: 0; z-index: 2; align-items: flex-start; justify-content: center; padding-top: 60px; }
+.lock-msg .card { max-width: 420px; text-align: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.15); }
+
+/* dialogue */
+.dlg { display: flex; flex-direction: column; gap: 12px; }
+.dl { display: grid; grid-template-columns: 86px minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+.who { color: var(--on-ink); font-weight: 800; border-radius: 999px; text-align: center; padding: 4px 0; font-size: 16px; line-height: 1.2; }
+.who small { display: block; font-family: var(--f-display); font-weight: 600; font-size: 12px; opacity: .9; }
+.dl .zh { font-size: 22px; font-weight: 500; color: var(--ink); }
+.dl .zh b { color: var(--red); }
+.dl.playing { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.bg-dawen { background: var(--c-dawen); } .bg-mama { background: var(--c-mama); } .bg-wenwen { background: var(--c-wenwen); } .bg-baba { background: var(--c-baba); }
+.dark-text .who { color: var(--on-ink); }
+
+table.t { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 14px; overflow: hidden; font-size: 16px; }
+table.t th, table.t td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+table.t th { background: var(--surface-2); color: var(--ink); font-weight: 700; }
+.tscroll { overflow-x: auto; }
+
+/* measure words */
+.mw { align-items: center; text-align: center; }
+.mw .big { font-size: 44px; font-weight: 900; color: var(--red); line-height: 1.1; }
+.mw img, .pic { width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: contain; border-radius: 50%; background: #FFFFFF; }
+.game { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 20px; }
+.game .pic { max-width: 220px; justify-self: center; }
+.game .n { font-family: var(--f-display); font-size: 96px; font-weight: 900; color: var(--red); line-height: 1; font-variant-numeric: tabular-nums; }
+.game .ans { font-size: 34px; font-weight: 800; color: var(--ink); min-height: 1.4em; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* break */
+.breakbox { background: var(--red); color: var(--on-ink); border-radius: 24px; padding: 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.breakbox h2, .breakbox .py { color: var(--on-ink); }
+.clockface { font-family: var(--f-display); font-size: clamp(64px, 12vw, 120px); font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+.breakbox .btn { background: var(--on-ink); color: var(--red); }
+
+/* colors */
+.swatch { height: 64px; border-radius: 12px; border: 1px solid var(--line); }
+.rule { background: var(--gold); color: var(--gold-ink); border-radius: 20px; padding: 18px; text-align: center; font-weight: 900; font-size: 26px; }
+.rule .py { color: var(--gold-ink); font-size: 16px; font-weight: 600; }
+.cmd { font-size: 34px; font-weight: 800; color: var(--ink); min-height: 1.5em; }
+ol.cmds { columns: 2; gap: 24px; padding-left: 22px; margin: 0; }
+ol.cmds li { break-inside: avoid; margin-bottom: 4px; }
+.trap { color: var(--red); font-weight: 700; }
+
+footer { padding-block: 32px 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+
+@media (max-width: 820px) {
+  .hero, .split, .game { grid-template-columns: minmax(0, 1fr); }
+  .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  ol.cmds { columns: 1; }
+}
+@media (max-width: 480px) {
+  .grid2, .grid3 { grid-template-columns: minmax(0, 1fr); }
+  .grid5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dl { grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .dl .zh { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage img.scene { transition: none; }
+  .waves i { animation: none; height: 10px; }
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">第六課 聖誕節快到了<small>代課 12:40–2:30</small></div>
+    <nav class="timeline" aria-label="上課時段" id="timeline">
+      <a href="#intro" data-from="760" data-to="765"><b>12:40</b>開場</a>
+      <a href="#text" data-from="765" data-to="795"><b>12:45</b>課文與生詞</a>
+      <a href="#pattern" data-from="795" data-to="815"><b>1:15</b>句型</a>
+      <a href="#rest" data-from="815" data-to="825"><b>1:35</b>休息</a>
+      <a href="#measure" data-from="825" data-to="850"><b>1:45</b>量詞</a>
+      <a href="#games" data-from="850" data-to="870"><b>2:10</b>遊戲</a>
+    </nav>
+    <button class="toggle" id="pyToggle" aria-pressed="true">拼音</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">學華語向前走 3A ｜ 課本第 92–103 頁</p>
+      <h1>第六課 聖誕節快到了</h1>
+      <p class="py">Dì liù kè · Shèngdànjié kuài dào le</p>
+      <p class="meta">12:40–2:30，共 110 分鐘，1:35–1:45 休息。3 位學生，看拼音。</p>
+    </div>
+    <img src="img/scene.jpg" alt="課本插圖：大文一家人在百貨公司看聖誕樹" width="1400" height="1016">
+  </div>
+
+  <details class="note" open>
+    <summary>代課老師先看（不用給學生看）</summary>
+    <ul>
+      <li>這個網頁照上課順序排好，從上往下教就可以。上方的時間列會標出現在該上哪一段。</li>
+      <li>有喇叭按鈕的地方，按一下電腦就會念中文。「拼音」按鈕可以關掉拼音。</li>
+      <li><b>2:10 一到，不管進度，一定開始遊戲。</b>時間不夠時：先刪「數一數教室」，造句改成每人一句，課文問答只問前 5 題。</li>
+      <li>需要準備：課本（第 92–103 頁）、白板和白板筆、喇叭（播放課文影片用）。</li>
+      <li>學生說錯時，先說一次正確的句子，再請他跟著說，不用停下來講文法。</li>
+      <li>第 95 頁的習寫漢字、第 99–101 頁的練習這次都不教。</li>
+    </ul>
+  </details>
+
+  <!-- 開場 -->
+  <section class="block" id="intro">
+    <div class="block-head"><span class="time">12:40–12:45</span><h2>今天我們要學會…</h2><span class="py">Jīntiān wǒmen yào xuéhuì…</span></div>
+    <div class="grid2">
+      <div class="card"><p class="t">1. 用「<span class="hl">好</span>」說很多、很大、很可愛</p><p class="py">yòng “hǎo” shuō hěn duō, hěn dà, hěn kě’ài</p></div>
+      <div class="card"><p class="t">2. 用「<span class="hl">就是</span>」說什麼時候快到了</p><p class="py">yòng “jiù shì” shuō shénme shíhou kuài dào le</p></div>
+      <div class="card"><p class="t">3. 會用量詞：<span class="hl">棵、輛、隻、張、個</span></p><p class="py">kē, liàng, zhī, zhāng, ge</p></div>
+      <div class="card"><p class="t">4. 說出我想要的聖誕禮物</p><p class="py">shuō chū wǒ xiǎng yào de shèngdàn lǐwù</p></div>
+    </div>
+    <details class="note"><summary>老師備忘</summary><ul>
+      <li>問好：「大家好！我是今天的代課老師，我姓＿＿。」</li>
+      <li>暖身：「聖誕節是幾月幾號？」（十二月二十五號）「你們喜歡聖誕節嗎？」</li>
+      <li>四個目標念一遍，學生跟念。告訴學生最後 20 分鐘要玩「我看到…」和「老師說」。</li>
+    </ul></details>
+  </section>
+
+  <!-- 課文與生詞 -->
+  <section class="block" id="text">
+    <div class="block-head"><span class="time">12:45–1:15</span><h2>課文與生詞</h2><span class="py">kèwén yǔ shēngcí</span></div>
+
+    <div class="step">
+      <div class="step-head"><h3>① 先看生詞</h3><span class="py">Xiān kàn shēngcí</span><span class="clock">12:45–12:50 ｜ 課本第 94 頁</span></div>
+      <div class="split">
+        <div class="bookref"><b>請打開課本第 94 頁</b><span class="py">Qǐng dǎkāi kèběn dì 94 yè</span><span>生詞表，共 19 個生詞</span></div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div class="card"><p class="t">老師念 → 學生跟念 2 次</p><p class="py">Lǎoshī niàn → xuéshēng gēn niàn 2 cì</p><p>再請每位學生念一排</p><p class="py">Zài qǐng měi wèi xuéshēng niàn yì pái</p></div>
+          <div class="card"><p class="t">注意這幾個字</p><p class="py">Zhùyì zhè jǐ ge zì</p>
+            <div class="row" id="keyWords"></div>
+            <p>都是量詞，等一下會用到！</p><p class="py">Dōu shì liàngcí, děng yíxià huì yòng dào!</p></div>
+          <details class="note"><summary>老師備忘：意思快速帶過</summary><ul>
+            <li>好 hǎo ＝ quite / so（好多、好漂亮）；平常 píngcháng ＝ normally</li>
+            <li>就是 jiù shì ＝ is（下個月就是聖誕節）；掛 guà ＝ hang</li>
+            <li>聽話 tīnghuà ＝ 乖；寄 jì ＝ mail, send</li>
+            <li>棵 kē（樹）、輛 liàng（車）、隻 zhī（動物、襪子）</li>
+          </ul></details>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>② 先聽一遍課文</h3><span class="py">Xiān tīng yí biàn kèwén</span><span class="clock">12:50–12:53</span></div>
+      <div class="player" id="player">
+        <div class="stage" id="stage">
+          <img class="scene" id="scene" src="img/scene.jpg" alt="課文插圖：大文、爸爸、媽媽、文文在百貨公司">
+          <div class="tag" id="tag"><span id="tagName">大文</span><span class="waves" aria-hidden="true"><i></i><i></i><i></i></span></div>
+          <div class="subs" id="subs" hidden><p class="zh" id="subZh"></p><p class="pys" id="subPy"></p><span class="shadow-cue" id="cue" hidden>換你說！</span></div>
+          <div class="cover" id="cover">
+            <div>
+              <h3>聖誕節快到了</h3>
+              <p>大文一家人在百貨公司。仔細聽，他們說了什麼？</p>
+              <p style="font-family:var(--f-display); opacity:.85;">Dàwén yì jiā rén zài bǎihuò gōngsī. Zǐxì tīng!</p>
+              <button class="btn" id="bigPlay"><svg><use href="#i-play"/></svg>播放影片</button>
+            </div>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="c" id="playBtn" aria-label="播放"><svg><use href="#i-play"/></svg><span>播放</span></button>
+          <button class="c" id="restartBtn"><svg><use href="#i-replay"/></svg>從頭</button>
+          <div class="dots" id="dots" aria-label="跳到第幾句"></div>
+          <button class="c" id="slowBtn" aria-pressed="false">慢速</button>
+          <button class="c" id="shadowBtn" aria-pressed="false">跟讀</button>
+          <p class="voice-note" id="voiceNote">聲音是電腦的中文語音。「跟讀」會在每句後面停下來，讓學生跟著念。</p>
+        </div>
+      </div>
+      <details class="note"><summary>老師備忘</summary><ul>
+        <li>第一次：學生只聽、不看課本。聽完問：「他們在哪裡？」（百貨公司）「誰想要玩具車？」（大文）</li>
+        <li>第二次可以開「跟讀」，每句停下來讓學生跟著念。</li>
+        <li>電腦念得太快，就開「慢速」。如果沒有聲音，影片會照字幕自動播放，請老師幫忙念。</li>
+      </ul></details>
+    </div>
+
+    <div id="practice" class="locked">
+      <div class="lock-msg"><div class="card"><p class="t">先把課文影片聽完一遍，再開始練習</p><p class="py">Xiān tīng wán, zài liànxí</p><button class="btn ghost" id="skipLock">老師：直接打開練習</button></div></div>
+      <div class="lock-body">
+        <div class="step">
+          <div class="step-head"><h3>③ 分角色朗讀</h3><span class="py">Fēn jiǎosè lǎngdú</span><span class="clock">12:53–1:00 ｜ 課本第 92–93 頁</span></div>
+          <div class="tscroll" style="margin-bottom:16px;">
+            <table class="t">
+              <tr><th>第幾次 <span class="py">dì jǐ cì</span></th><th>大文 <span class="py">Dàwén</span></th><th>媽媽 <span class="py">Māma</span></th><th>文文 <span class="py">Wénwen</span></th><th>爸爸 <span class="py">Bàba</span></th></tr>
+              <tr><td>第 1 次</td><td>學生 A</td><td>學生 B</td><td>學生 C</td><td>老師</td></tr>
+              <tr><td>第 2 次</td><td>老師</td><td>學生 A</td><td>學生 B</td><td>學生 C</td></tr>
+              <tr><td>第 3 次</td><td>學生 C</td><td>老師</td><td>學生 A</td><td>學生 B</td></tr>
+            </table>
+          </div>
+          <div class="dlg" id="dlg"></div>
+          <details class="note"><summary>老師備忘：逐句理解</summary><ul>
+            <li>朗讀前先決定誰是學生 A、B、C，寫在白板上。學生只有 3 位，老師也演一個角色。</li>
+            <li>每念完一句，問一個問題，例如：「今天人多不多？」「文文看到什麼？」「燈要掛在哪裡？」（可以指窗戶，只指不碰）</li>
+            <li>好多＝很多；棵：數樹；彩色＝很多顏色；輛：數車；聽話＝很乖；張：數紙、卡片、照片；寄＝mail；隻：數動物，也用在襪子。</li>
+          </ul></details>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><h3>④ 你記得嗎？</h3><span class="py">Nǐ jìde ma?</span><span class="clock">1:00–1:10</span></div>
+          <div class="grid2" id="quiz"></div>
+          <details class="note"><summary>老師備忘</summary><ul>
+            <li>三位學生輪流回答，先讓學生說，再按「看答案」。要用完整的句子回答。</li>
+            <li>第 8 題三個人都要回答，提醒他們用量詞：一輛腳踏車、一隻小狗。</li>
+          </ul></details>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><h3>⑤ 用生詞回答我</h3><span class="py">Yòng shēngcí huídá wǒ</span><span class="clock">1:10–1:15</span></div>
+          <div class="tscroll"><table class="t" id="wordTable">
+            <tr><th>生詞</th><th>老師問</th><th>參考答案</th></tr>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 句型 -->
+  <section class="block" id="pattern">
+    <div class="block-head"><span class="time">1:15–1:35</span><h2>句型</h2><span class="py">jùxíng</span></div>
+    <div id="patterns"></div>
+  </section>
+
+  <!-- 休息 -->
+  <section class="block" id="rest">
+    <div class="breakbox">
+      <span class="time" style="background:var(--on-ink); color:var(--red);">1:35–1:45</span>
+      <h2>休息 10 分鐘</h2>
+      <p class="py">xiūxi shí fēnzhōng</p>
+      <div class="clockface" id="breakClock">10:00</div>
+      <div class="row" style="justify-content:center;"><button class="btn" id="breakStart">開始計時</button><button class="btn" id="breakReset">重設</button></div>
+      <p>回來以後，我們要學量詞：棵、輛、隻、張、個！</p>
+      <p class="py">Huílái yǐhòu, wǒmen yào xué liàngcí: kē, liàng, zhī, zhāng, ge!</p>
+    </div>
+  </section>
+
+  <!-- 量詞 -->
+  <section class="block" id="measure">
+    <div class="block-head"><span class="time">1:45–2:10</span><h2>量詞活動</h2><span class="py">liàngcí huódòng</span></div>
+
+    <div class="step">
+      <div class="step-head"><h3>① 五個量詞</h3><span class="py">Wǔ ge liàngcí</span><span class="clock">1:45–1:49</span></div>
+      <div class="grid5" id="mwCards"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>② 念一念、填一填</h3><span class="py">Niàn yi niàn, tián yi tián</span><span class="clock">1:49–1:54 ｜ 課本第 98 頁</span></div>
+      <div class="split">
+        <div class="bookref"><b>請翻到課本第 98 頁</b><span class="py">Qǐng fān dào kèběn dì 98 yè</span><span>下面的量詞框：棵、輛、隻、張、個</span></div>
+        <div style="display:flex; flex-direction:column; gap:12px;" id="mwFill"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>③ 一起念一念</h3><span class="py">Yìqǐ niàn yi niàn</span><span class="clock">1:54–1:58 ｜ 課本第 102 頁</span></div>
+      <div class="split">
+        <div class="bookref"><b>請翻到課本第 102 頁</b><span class="py">Qǐng fān dào kèběn dì 102 yè</span><span>12 張圖：一個人、一輛玩具車、一隻狗、一個洋娃娃、一棵樹、一隻貓、一個蛋糕、一張照片、一隻兔子、一個麵包、一張卡片、一隻聖誕襪</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card"><p class="t">① 老師念，大家跟念</p><p class="py">Lǎoshī niàn, dàjiā gēn niàn</p></div>
+          <div class="card"><p class="t">② 一個人念一排</p><p class="py">Yí ge rén niàn yì pái</p></div>
+          <div class="card"><p class="t">③ 老師指圖，你說出來</p><p class="py">Lǎoshī zhǐ tú, nǐ shuō chūlái</p></div>
+          <div class="card"><p class="t">④ 把「一」換成別的數字！</p><p class="py">Bǎ “yī” huàn chéng bié de shùzì!</p><p>兩個人、三個人、十個人…</p><p class="py">liǎng ge rén, sān ge rén, shí ge rén…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>④ 有幾個？說說看！</h3><span class="py">Yǒu jǐ ge? Shuō shuo kàn!</span><span class="clock">1:58–2:06</span></div>
+      <div class="game">
+        <img class="pic" id="gPic" src="img/dog.jpg" alt="狗">
+        <div style="display:flex; flex-direction:column; gap:12px; min-width:0;">
+          <p class="n" id="gNum">2</p>
+          <p class="ans" id="gAns">&nbsp;</p>
+          <p class="py" id="gPy">&nbsp;</p>
+          <div class="row">
+            <button class="btn gold" id="gShow">看答案</button>
+            <button class="say" id="gSay" aria-label="念答案"><svg><use href="#i-sound"/></svg></button>
+            <button class="btn" id="gNext">下一題</button>
+          </div>
+          <p style="color:var(--muted); font-size:15px;">數字 2 要說「兩」：兩隻狗 ✔　二隻狗 ✘</p>
+        </div>
+      </div>
+      <details class="note"><summary>老師備忘</summary><ul>
+        <li>三位學生輪流，一人說一題，要說「數字＋量詞＋東西」。說對再按「看答案」。</li>
+        <li>加快一點：最快說對的學生得 1 分。也可以請學生當老師，換他按「下一題」考別人。</li>
+      </ul></details>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>⑤ 連連看</h3><span class="py">Lián lian kàn</span><span class="clock">2:06–2:08 ｜ 課本第 103 頁</span></div>
+      <div class="split">
+        <div class="bookref"><b>請翻到課本第 103 頁</b><span class="py">Qǐng fān dào kèběn dì 103 yè</span><span>在課本上連線（課本不能寫就用說的）</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px;" id="connect"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>⑥ 數一數教室</h3><span class="py">Shǔ yi shǔ jiàoshì</span><span class="clock">2:08–2:10 ｜ 時間夠才做</span></div>
+      <p style="margin-bottom:10px;"><b>只能看、只能指，不能碰！</b> <span class="py">Zhǐ néng kàn, zhǐ néng zhǐ, bù néng pèng!</span></p>
+      <div class="grid2" id="countRoom"></div>
+    </div>
+  </section>
+
+  <!-- 遊戲 -->
+  <section class="block" id="games">
+    <div class="block-head"><span class="time">2:10–2:30</span><h2>遊戲時間</h2><span class="py">yóuxì shíjiān</span></div>
+
+    <div class="step">
+      <div class="step-head"><h3>遊戲一：我看到…</h3><span class="py">Wǒ kàndào…</span><span class="clock">2:10–2:20</span></div>
+      <div class="split">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card"><p class="py">老師 lǎoshī</p><p class="t">我看到一個<span class="hl">紅色</span>的東西！</p><p class="py">Wǒ kàndào yí ge hóngsè de dōngxi!</p></div>
+          <div class="card"><p class="py">學生 xuéshēng</p><p class="t">是那個＿＿嗎？</p><p class="py">Shì nà ge ＿＿ ma?</p></div>
+          <div class="card"><p class="py">老師 lǎoshī</p><p class="t">對！／不對，再猜一次！</p><p class="py">Duì! / Bú duì, zài cāi yí cì!</p></div>
+        </div>
+        <div class="rule">只能看、只能指<br>不能碰！<p class="py">Zhǐ néng kàn, zhǐ néng zhǐ, bù néng pèng!<br>Look and point only. No touching!</p></div>
+      </div>
+      <h3 style="margin-top:20px; margin-bottom:10px;">什麼顏色？ <span class="py">Shénme yánsè?</span></h3>
+      <div class="grid5" id="colors"></div>
+      <details class="note"><summary>老師備忘</summary><ul>
+        <li>先請學生跟著說一次：「只能看、只能指，不能碰！」</li>
+        <li>老師先出題，猜對的學生下一輪出題。進階：用量詞，「我看到一張白色的東西」。</li>
+        <li>有學生去碰東西，就暫停一回合，重說規則。</li>
+      </ul></details>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h3>遊戲二：老師說</h3><span class="py">Lǎoshī shuō</span><span class="clock">2:20–2:30</span></div>
+      <p>聽到「老師說」才做，沒聽到就不要動！ <span class="py">Tīngdào “lǎoshī shuō” cái zuò, méi tīngdào jiù bú yào dòng!</span></p>
+      <div class="card" style="margin-top:14px; align-items:flex-start;">
+        <p class="cmd" id="cmdNow">按「出題」開始</p>
+        <p class="py" id="cmdPy">&nbsp;</p>
+        <div class="row"><button class="btn gold" id="cmdNext">出題（電腦念）</button><span style="color:var(--muted); font-size:14px;">紅字是陷阱題，沒有「老師說」。</span></div>
+      </div>
+      <details class="note"><summary>全部指令（老師也可以自己念）</summary><ol class="cmds" id="cmdList"></ol></details>
+    </div>
+
+    <div class="step" style="text-align:center;">
+      <h2>聖誕節快樂！再見！</h2>
+      <p class="py" style="font-size:20px;">Shèngdànjié kuàilè! Zàijiàn!</p>
+      <details class="note" style="text-align:left;"><summary>下課前</summary><ul>
+        <li>請每位學生說一個今天學的量詞詞組，例如「一棵樹」。</li>
+        <li>留言給原來的老師：今天上到哪裡、哪一部分沒做完、學生的表現。</li>
+      </ul></details>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">課本：學華語向前走 3A 第六課（第 92–103 頁）。課本頁面請看紙本課本；課文語音為裝置內建的中文語音。</div></footer>
+
+<script>
+(function () {
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const plain = (s) => s.replace(/<[^>]+>/g, '');
+  const icon = (id) => '<svg><use href="#' + id + '"/></svg>';
+
+  /* ---------- speech ---------- */
+  const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+  let zhVoice = null;
+  function pickVoice() {
+    if (!synth) return;
+    const vs = synth.getVoices();
+    zhVoice = vs.find(v => /zh[-_]TW/i.test(v.lang)) || vs.find(v => /zh[-_](CN|HK)|cmn/i.test(v.lang)) || vs.find(v => /^zh/i.test(v.lang)) || null;
+    const note = $('#voiceNote');
+    if (vs.length && !zhVoice && note) note.textContent = '這台裝置找不到中文語音，影片會照字幕自動播放，請老師幫忙念。（Chrome 或 Edge 瀏覽器通常有中文語音）';
+  }
+  if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+  let slow = false;
+  const estimate = (t) => Math.max(1600, plain(t).length * (slow ? 420 : 300) + 600);
+  function say(text, opt) {
+    opt = opt || {};
+    const t = plain(text);
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; clearTimeout(guard); resolve(); } };
+      const guard = setTimeout(finish, estimate(t) * 2.2 + 2500);
+      if (!synth || (synth.getVoices().length && !zhVoice)) { clearTimeout(guard); setTimeout(finish, estimate(t)); return; }
+      try {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = zhVoice ? zhVoice.lang : 'zh-TW';
+        if (zhVoice) u.voice = zhVoice;
+        u.rate = (slow ? 0.62 : 0.88) * (opt.rate || 1);
+        u.pitch = opt.pitch || 1;
+        u.onend = finish; u.onerror = finish;
+        synth.speak(u);
+      } catch (e) { setTimeout(finish, estimate(t)); }
+    });
+  }
+  function stopSpeech() { if (synth) synth.cancel(); }
+  function speakBtn(btn, text, opt) {
+    document.querySelectorAll('.say.speaking').forEach(b => b.classList.remove('speaking'));
+    stopVideo();
+    stopSpeech();
+    btn.classList.add('speaking');
+    say(text, opt).then(() => btn.classList.remove('speaking'));
+  }
+  const sayBtnHTML = (text, label) => '<button class="say" data-say="' + esc(plain(text)) + '" aria-label="' + esc(label || '念出來') + '">' + icon('i-sound') + '</button>';
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.say[data-say]');
+    if (b) speakBtn(b, b.dataset.say, b.dataset.who ? PEOPLE[b.dataset.who] : null);
+    const r = e.target.closest('.reveal-btn');
+    if (r) { const a = r.nextElementSibling; if (a) { a.hidden = !a.hidden; r.textContent = a.hidden ? '看答案' : '收起答案'; } }
+  });
+
+  /* ---------- pinyin toggle ---------- */
+  const pyBtn = $('#pyToggle');
+  pyBtn.addEventListener('click', () => {
+    const on = pyBtn.getAttribute('aria-pressed') !== 'true';
+    pyBtn.setAttribute('aria-pressed', String(on));
+    document.body.classList.toggle('hide-py', !on);
+  });
+
+  /* ---------- now-marker on timeline ---------- */
+  function markNow() {
+    const d = new Date(); const m = d.getHours() * 60 + d.getMinutes();
+    document.querySelectorAll('#timeline a').forEach(a => a.classList.toggle('now', m >= +a.dataset.from && m < +a.dataset.to));
+  }
+  markNow(); setInterval(markNow, 30000);
+
+  /* ---------- key words ---------- */
+  $('#keyWords').innerHTML = [['棵', 'kē'], ['輛', 'liàng'], ['隻', 'zhī'], ['好', 'hǎo'], ['就是', 'jiù shì'], ['掛', 'guà'], ['寄', 'jì']]
+    .map(([z, p]) => '<span class="card" style="flex-direction:row; align-items:center; gap:8px; padding:6px 12px;"><b class="hl" style="font-size:22px;">' + z + '</b><span class="py">' + p + '</span>' + sayBtnHTML(z) + '</span>').join('');
+
+  /* ---------- dialogue data ---------- */
+  const PEOPLE = {
+    dawen:  { name: '大文', py: 'Dàwén',  x: 16, y: 69, pitch: 1.3,  rate: 1.05 },
+    baba:   { name: '爸爸', py: 'Bàba',   x: 37, y: 50, pitch: 0.7,  rate: 0.95 },
+    mama:   { name: '媽媽', py: 'Māma',   x: 60, y: 50, pitch: 1.08, rate: 1 },
+    wenwen: { name: '文文', py: 'Wénwen', x: 72, y: 60, pitch: 1.5,  rate: 1.05 }
+  };
+  const LINES = [
+    { who: 'dawen',  zh: '哇！今天人<b>好</b>多，跟平常不一樣。', py: 'Wa! Jīntiān rén hǎo duō, gēn píngcháng bù yíyàng.' },
+    { who: 'mama',   zh: '下個月<b>就是</b>聖誕節了，大家都來買東西。', py: 'Xià ge yuè jiù shì Shèngdànjié le, dàjiā dōu lái mǎi dōngxi.' },
+    { who: 'wenwen', zh: '媽媽，你看那<b>棵</b>聖誕樹<b>好</b>漂亮！', py: 'Māma, nǐ kàn nà kē shèngdànshù hǎo piàoliang!' },
+    { who: 'baba',   zh: '我們也要買一些彩色的燈<b>掛在</b>窗戶上。今年你想要什麼禮物？', py: 'Wǒmen yě yào mǎi yìxiē cǎisè de dēng guà zài chuānghu shàng. Jīnnián nǐ xiǎng yào shénme lǐwù?' },
+    { who: 'dawen',  zh: '我想要一<b>輛</b>玩具車，聖誕老人會送給我嗎？', py: 'Wǒ xiǎng yào yí liàng wánjùchē, Shèngdàn lǎorén huì sòng gěi wǒ ma?' },
+    { who: 'baba',   zh: '如果你聽話，聖誕老人就會送給你。', py: 'Rúguǒ nǐ tīnghuà, Shèngdàn lǎorén jiù huì sòng gěi nǐ.' },
+    { who: 'wenwen', zh: '我想買一<b>個</b>洋娃娃，再買一<b>張</b>卡片寄給外公、外婆。', py: 'Wǒ xiǎng mǎi yí ge yángwáwa, zài mǎi yì zhāng kǎpiàn jì gěi wàigōng, wàipó.' },
+    { who: 'mama',   zh: '我們還要買一<b>隻</b>聖誕襪<b>掛在</b>房間裡。', py: 'Wǒmen hái yào mǎi yì zhī shèngdànwà guà zài fángjiān lǐ.' }
+  ];
+
+  /* dialogue list for practice */
+  $('#dlg').innerHTML = LINES.map((l, i) => {
+    const p = PEOPLE[l.who];
+    return '<div class="dl" id="dl' + i + '"><p class="who bg-' + l.who + '">' + p.name + '<small>' + p.py + '</small></p>' +
+      '<div><p class="zh">' + l.zh + '</p><p class="py">' + l.py + '</p></div>' +
+      '<button class="say" data-say="' + esc(plain(l.zh)) + '" data-who="' + l.who + '" aria-label="念這一句">' + icon('i-sound') + '</button></div>';
+  }).join('');
+
+  /* ---------- video player ---------- */
+  const scene = $('#scene'), tag = $('#tag'), subs = $('#subs'), cover = $('#cover'), cue = $('#cue');
+  const dots = $('#dots');
+  dots.innerHTML = LINES.map((_, i) => '<button aria-label="第 ' + (i + 1) + ' 句"></button>').join('');
+  let run = 0, cur = 0, playing = false, shadow = false, heardAll = false;
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+  function focusOn(i) {
+    const p = PEOPLE[LINES[i].who];
+    const s = 1.55, lim = 50 - 50 / s;
+    const clamp = (v) => Math.max(-lim, Math.min(lim, v));
+    scene.style.transformOrigin = '50% 50%';
+    scene.style.transform = 'scale(' + s + ') translate(' + clamp(50 - p.x).toFixed(1) + '%, ' + clamp(50 - p.y).toFixed(1) + '%)';
+    tag.style.left = '50%'; tag.style.top = '22%';
+    $('#tagName').textContent = p.name + ' ' + p.py;
+    tag.classList.add('on');
+    $('#subZh').innerHTML = LINES[i].zh;
+    $('#subPy').textContent = LINES[i].py;
+    subs.hidden = false;
+    [...dots.children].forEach((d, k) => { d.className = k < i ? 'done' : (k === i ? 'cur' : ''); });
+    document.querySelectorAll('.dl').forEach((d, k) => d.classList.toggle('playing', k === i));
+  }
+  function wide() { scene.style.transform = 'scale(1)'; scene.style.transformOrigin = '50% 50%'; tag.classList.remove('on'); }
+  function setPlayUI(on) {
+    playing = on;
+    $('#playBtn').innerHTML = icon(on ? 'i-pause' : 'i-play') + '<span>' + (on ? '暫停' : '播放') + '</span>';
+    $('#playBtn').setAttribute('aria-label', on ? '暫停' : '播放');
+  }
+  function stopVideo() { if (playing) { run++; stopSpeech(); setPlayUI(false); cue.hidden = true; } }
+
+  async function playFrom(start) {
+    const id = ++run;
+    stopSpeech();
+    cover.hidden = true;
+    setPlayUI(true);
+    if (start === 0) { wide(); subs.hidden = true; await wait(1200); if (id !== run) return; }
+    for (let i = start; i < LINES.length; i++) {
+      cur = i;
+      focusOn(i);
+      await wait(700); if (id !== run) return;
+      const p = PEOPLE[LINES[i].who];
+      await say(LINES[i].zh, { pitch: p.pitch, rate: p.rate }); if (id !== run) return;
+      if (shadow) {
+        cue.hidden = false; tag.classList.remove('on');
+        await wait(estimate(LINES[i].zh) * 1.15 + 600); if (id !== run) return;
+        cue.hidden = true;
+      }
+      await wait(500); if (id !== run) return;
+    }
+    setPlayUI(false);
+    cur = 0;
+    wide(); subs.hidden = true;
+    [...dots.children].forEach(d => d.className = 'done');
+    document.querySelectorAll('.dl').forEach(d => d.classList.remove('playing'));
+    heardAll = true;
+    unlock();
+    cover.innerHTML = '<div><h3>聽完了！</h3><p>我們來練習吧。 Wǒmen lái liànxí ba.</p><div class="row" style="justify-content:center;"><button class="btn" id="goPractice">開始練習</button><button class="btn" id="again" style="background:#FFFDF8; color:#1F2A24;">再聽一次</button></div></div>';
+    cover.hidden = false;
+    $('#goPractice').onclick = () => { document.getElementById('practice').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    $('#again').onclick = () => playFrom(0);
+  }
+  $('#bigPlay').addEventListener('click', () => playFrom(0));
+  $('#playBtn').addEventListener('click', () => { if (playing) stopVideo(); else playFrom(cur); });
+  $('#restartBtn').addEventListener('click', () => playFrom(0));
+  dots.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) playFrom([...dots.children].indexOf(b)); });
+  $('#slowBtn').addEventListener('click', (e) => { slow = !slow; e.currentTarget.setAttribute('aria-pressed', String(slow)); });
+  $('#shadowBtn').addEventListener('click', (e) => { shadow = !shadow; e.currentTarget.setAttribute('aria-pressed', String(shadow)); });
+
+  function unlock() { const p = document.getElementById('practice'); p.classList.remove('locked'); }
+  $('#skipLock').addEventListener('click', unlock);
+
+  /* ---------- quiz ---------- */
+  const QUIZ = [
+    ['今天人多不多？', 'Jīntiān rén duō bù duō?', '好多！跟平常不一樣。', 'Hǎo duō! Gēn píngcháng bù yíyàng.'],
+    ['什麼時候是聖誕節？', 'Shénme shíhou shì Shèngdànjié?', '下個月就是聖誕節了。', 'Xià ge yuè jiù shì Shèngdànjié le.'],
+    ['文文看到什麼？', 'Wénwen kàndào shénme?', '一棵好漂亮的聖誕樹。', 'Yì kē hǎo piàoliang de shèngdànshù.'],
+    ['燈要掛在哪裡？', 'Dēng yào guà zài nǎlǐ?', '掛在窗戶上。', 'Guà zài chuānghu shàng.'],
+    ['大文想要什麼禮物？', 'Dàwén xiǎng yào shénme lǐwù?', '一輛玩具車。', 'Yí liàng wánjùchē.'],
+    ['卡片要寄給誰？', 'Kǎpiàn yào jì gěi shéi?', '外公、外婆。', 'Wàigōng, wàipó.'],
+    ['聖誕襪要掛在哪裡？', 'Shèngdànwà yào guà zài nǎlǐ?', '房間裡。', 'Fángjiān lǐ.'],
+    ['你呢？你想要什麼禮物？', 'Nǐ ne? Nǐ xiǎng yào shénme lǐwù?', '我想要一＿＿＿＿。（用量詞）', 'Wǒ xiǎng yào yí ＿＿.']
+  ];
+  $('#quiz').innerHTML = QUIZ.map((q, i) =>
+    '<div class="card"><div class="row" style="justify-content:space-between; flex-wrap:nowrap;"><p class="t">' + (i + 1) + '. ' + q[0] + '</p>' + sayBtnHTML(q[0], '念題目') + '</div><p class="py">' + q[1] + '</p>' +
+    '<button class="reveal-btn">看答案</button><div class="answer" hidden><p>' + q[2] + '</p><p class="py">' + q[3] + '</p></div></div>').join('');
+
+  /* ---------- word check ---------- */
+  const WORDS = [
+    ['平常', 'píngcháng', '你平常幾點睡覺？', 'Nǐ píngcháng jǐ diǎn shuìjiào?', '我平常九點睡覺。'],
+    ['彩色', 'cǎisè', '你有什麼彩色的東西？', 'Nǐ yǒu shénme cǎisè de dōngxi?', '我有彩色的筆。'],
+    ['燈', 'dēng', '教室裡有幾個燈？', 'Jiàoshì lǐ yǒu jǐ ge dēng?', '教室裡有＿個燈。（只用眼睛數）'],
+    ['窗戶', 'chuānghu', '教室有幾個窗戶？', 'Jiàoshì yǒu jǐ ge chuānghu?', '教室有＿個窗戶。（用手指，不要碰）'],
+    ['聽話', 'tīnghuà', '你在家聽不聽話？', 'Nǐ zài jiā tīng bù tīnghuà?', '我在家很聽話！'],
+    ['寄', 'jì', '你想寄卡片給誰？', 'Nǐ xiǎng jì kǎpiàn gěi shéi?', '我想寄卡片給外婆。'],
+    ['聖誕老人', 'Shèngdàn lǎorén', '聖誕老人會送你什麼？', 'Shèngdàn lǎorén huì sòng nǐ shénme?', '聖誕老人會送我一輛玩具車。']
+  ];
+  $('#wordTable').insertAdjacentHTML('beforeend', WORDS.map(w =>
+    '<tr><td><b>' + w[0] + '</b><br><span class="py">' + w[1] + '</span></td><td><div class="row" style="flex-wrap:nowrap; align-items:flex-start;"><div>' + w[2] + '<br><span class="py">' + w[3] + '</span></div>' + sayBtnHTML(w[2]) + '</div></td>' +
+    '<td><button class="reveal-btn">看答案</button><span class="answer" hidden>' + w[4] + '</span></td></tr>').join(''));
+
+  /* ---------- patterns ---------- */
+  const PATTERNS = [
+    { title: '<span class="hl">好</span> ＋ 形容詞', tpy: 'hǎo + xíngróngcí', clock: '1:15–1:24 ｜ 課本第 96–97 頁', page: '96–97',
+      rule: '好多 ＝ 很多，好可愛 ＝ 很可愛（有一點驚訝、興奮）', rpy: 'hǎo duō = hěn duō · hǎo kě’ài = hěn kě’ài',
+      qs: [['第 3 題', '大文天天練習跑步，所以跑得（　）快。', '所以跑得好快。', 'Suǒyǐ pǎo de hǎo kuài.'], ['第 4 題', '超市裡（　　）好多。', '超市裡餅乾、糖果好多。', 'Chāoshì lǐ bǐnggān, tángguǒ hǎo duō.']],
+      sayTitle: '換你說！用「好」說一句話', sayPy: 'Yòng “hǎo” shuō yí jù huà', frame: '＿＿＿＿　<span class="hl">好</span>　＿＿＿＿！',
+      chips: [['好多', 'hǎo duō'], ['好大', 'hǎo dà'], ['好小', 'hǎo xiǎo'], ['好快', 'hǎo kuài'], ['好可愛', 'hǎo kě’ài'], ['好漂亮', 'hǎo piàoliang']],
+      examples: '這隻貓好可愛！／這輛玩具車好快！／我的家好大。／聖誕樹好漂亮！' },
+    { title: '<span class="hl">就是</span>', tpy: 'jiù shì', clock: '1:24–1:30 ｜ 課本第 97 頁', page: '97',
+      rule: '說某一天、某個節日快到了：下個月就是聖誕節了。', rpy: 'Xià ge yuè jiù shì Shèngdànjié le.',
+      qs: [['第 3 題', '下個星期三（　　）聖誕節了。', '下個星期三就是聖誕節了。', 'Xià ge xīngqīsān jiù shì Shèngdànjié le.'], ['第 4 題', '你們知道（　　）是什麼時候嗎？我知道！（　　）就是（　　）。', '你們知道聖誕節是什麼時候嗎？我知道！下個星期三就是聖誕節。', 'Nǐmen zhīdào Shèngdànjié shì shénme shíhou ma? Wǒ zhīdào! Xià ge xīngqīsān jiù shì Shèngdànjié.']],
+      sayTitle: '換你說！用「就是」說一句話', sayPy: 'Yòng “jiù shì” shuō yí jù huà', frame: '明天<span class="hl">就是</span>＿＿了！／下個月<span class="hl">就是</span>＿＿了！／＿月＿號<span class="hl">就是</span>我的生日！',
+      chips: [['明天', 'míngtiān'], ['下個月', 'xià ge yuè'], ['星期六', 'xīngqīliù'], ['新年', 'xīnnián'], ['我的生日', 'wǒ de shēngrì']],
+      examples: '明天就是星期六了！／下個月就是聖誕節了！／三月五號就是我的生日！' },
+    { title: '<span class="hl">掛在</span>', tpy: 'guà zài ＝ hang at / in / on', clock: '1:30–1:35 ｜ 課本第 97–98 頁', page: '97–98',
+      rule: '東西 ＋ 掛在 ＋ 地方：燈掛在窗戶上。', rpy: 'dōngxi + guà zài + dìfang · Dēng guà zài chuānghu shàng.',
+      qs: [['第 4 題', '弟弟的聖誕襪（　　）房間裡。', '弟弟的聖誕襪掛在房間裡。', 'Dìdi de shèngdànwà guà zài fángjiān lǐ.'], ['第 5 題', '你的衣服掛在（　　）。', '你的衣服掛在房間裡。', 'Nǐ de yīfu guà zài fángjiān lǐ.']],
+      sayTitle: '換你說！什麼東西掛在哪裡？（只能看、只能指）', sayPy: 'Shénme dōngxi guà zài nǎlǐ?', frame: '＿＿＿　<span class="hl">掛在</span>　＿＿＿上／裡。',
+      chips: [['時鐘', 'shízhōng'], ['月曆', 'yuèlì'], ['外套', 'wàitào'], ['聖誕襪', 'shèngdànwà']],
+      examples: '時鐘掛在牆上。／月曆掛在門上。／外套掛在椅子上。／聖誕襪掛在窗戶下面。' }
+  ];
+  $('#patterns').innerHTML = PATTERNS.map((p, i) =>
+    '<div class="step"><div class="step-head"><h3>句型' + '一二三'[i] + '：' + p.title + '</h3><span class="py">' + p.tpy + '</span><span class="clock">' + p.clock + '</span></div>' +
+    '<div class="split"><div class="bookref"><b>請翻到課本第 ' + p.page + ' 頁</b><span class="py">Qǐng fān dào kèběn dì ' + p.page + ' yè</span><span>先念例句 1、2，再做下面的填空。</span></div><div style="display:flex; flex-direction:column; gap:12px;">' +
+    '<div class="card"><p class="t">' + p.rule + '</p><p class="py">' + p.rpy + '</p></div>' +
+    p.qs.map(q => '<div class="card"><p class="t">' + q[0] + '</p><p>' + q[1] + '</p><button class="reveal-btn">看答案</button><div class="answer" hidden><p>' + q[2] + '</p><p class="py">' + q[3] + '</p></div></div>').join('') +
+    '</div></div>' +
+    '<div class="card" style="margin-top:14px; background:var(--surface-2);"><p class="t">' + p.sayTitle + '</p><p class="py">' + p.sayPy + '</p><p style="font-size:24px; font-weight:700; color:var(--ink);">' + p.frame + '</p>' +
+    '<div class="row">' + p.chips.map(c => '<span class="card" style="flex-direction:row; gap:8px; padding:6px 12px; align-items:center;"><b>' + c[0] + '</b><span class="py">' + c[1] + '</span></span>').join('') + '</div>' +
+    '<p style="color:var(--muted); font-size:15px;">每位學生說一句自己的句子，不可以跟課本一樣。參考：' + p.examples + '</p></div></div>').join('');
+
+  /* ---------- break timer ---------- */
+  let left = 600, tick = null;
+  const show = () => { $('#breakClock').textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0'); };
+  $('#breakStart').addEventListener('click', (e) => {
+    if (tick) { clearInterval(tick); tick = null; e.currentTarget.textContent = '繼續'; return; }
+    e.currentTarget.textContent = '暫停';
+    tick = setInterval(() => { left = Math.max(0, left - 1); show(); if (!left) { clearInterval(tick); tick = null; $('#breakStart').textContent = '開始計時'; say('休息時間到了，回來上課囉！'); } }, 1000);
+  });
+  $('#breakReset').addEventListener('click', () => { clearInterval(tick); tick = null; left = 600; show(); $('#breakStart').textContent = '開始計時'; });
+
+  /* ---------- measure words ---------- */
+  const MW = [
+    ['棵', 'kē', 'tree', '一棵樹', 'yì kē shù', '樹', 'shù'],
+    ['輛', 'liàng', 'car', '一輛車', 'yí liàng chē', '車子', 'chēzi'],
+    ['隻', 'zhī', 'cat', '一隻貓', 'yì zhī māo', '動物、襪子', 'dòngwù, wàzi'],
+    ['張', 'zhāng', 'card', '一張卡片', 'yì zhāng kǎpiàn', '紙、卡片、照片', 'zhǐ, kǎpiàn, zhàopiàn'],
+    ['個', 'ge', 'person', '一個人', 'yí ge rén', '人和很多東西', 'rén hé hěn duō dōngxi']
+  ];
+  $('#mwCards').innerHTML = MW.map(m =>
+    '<div class="card mw"><p class="big">' + m[0] + '</p><p class="py">' + m[1] + '</p><img src="img/' + m[2] + '.jpg" alt="' + m[3] + '" loading="lazy">' +
+    '<div class="row" style="justify-content:center;"><p class="t">' + m[3] + '</p>' + sayBtnHTML(m[3]) + '</div><p class="py">' + m[4] + '</p><p style="font-size:15px;">' + m[5] + '</p><p class="py">' + m[6] + '</p></div>').join('');
+
+  $('#mwFill').innerHTML =
+    '<div class="card"><p class="t">第 1、2 題：輪流念</p><p>問：「為什麼用『輛』？」（因為是車）「為什麼用『隻』？」（因為是動物）</p></div>' +
+    '<div class="card"><p class="t">第 3 題</p><p>心美生日的時候，她想要買一（　）洋娃娃。</p><button class="reveal-btn">看答案</button><div class="answer" hidden><p>她想要買一個洋娃娃。</p><p class="py">Tā xiǎng yào mǎi yí ge yángwáwa.</p></div></div>' +
+    '<div class="card"><p class="t">第 4 題</p><p>你家院子裡面有很多樹嗎？是，差不多有（　　）。</p><button class="reveal-btn">看答案</button><div class="answer" hidden><p>是，差不多有十棵樹。（數字可以換，量詞要用「棵」）</p><p class="py">Shì, chàbuduō yǒu shí kē shù.</p></div></div>' +
+    '<div class="card"><p class="t">數字 2 要說「兩」</p><p class="py">shùzì 2 yào shuō “liǎng”</p><p>兩隻狗 ✔　二隻狗 ✘</p><p class="py">liǎng zhī gǒu ✔　èr zhī gǒu ✘</p></div>';
+
+  /* number game */
+  const THINGS = [
+    ['dog', '狗', 'gǒu', '隻', 'zhī', 1], ['tree', '樹', 'shù', '棵', 'kē', 1], ['car', '玩具車', 'wánjùchē', '輛', 'liàng', 4],
+    ['person', '人', 'rén', '個', 'ge', 4], ['card', '卡片', 'kǎpiàn', '張', 'zhāng', 1], ['doll', '洋娃娃', 'yángwáwa', '個', 'ge', 4],
+    ['cat', '貓', 'māo', '隻', 'zhī', 1], ['photo', '照片', 'zhàopiàn', '張', 'zhāng', 1], ['rabbit', '兔子', 'tùzi', '隻', 'zhī', 1],
+    ['cake', '蛋糕', 'dàngāo', '個', 'ge', 4], ['stocking', '聖誕襪', 'shèngdànwà', '隻', 'zhī', 1], ['bread', '麵包', 'miànbāo', '個', 'ge', 4]
+  ];
+  const NUMS = [[1, '一', 'yī'], [2, '兩', 'liǎng'], [3, '三', 'sān'], [4, '四', 'sì'], [5, '五', 'wǔ'], [6, '六', 'liù'], [7, '七', 'qī'], [8, '八', 'bā'], [9, '九', 'jiǔ'], [10, '十', 'shí'], [20, '二十', 'èrshí'], [100, '一百', 'yìbǎi']];
+  let gItem = THINGS[0], gN = NUMS[1], gLast = -1;
+  function gNew() {
+    let k; do { k = Math.floor(Math.random() * THINGS.length); } while (k === gLast);
+    gLast = k; gItem = THINGS[k];
+    gN = NUMS[Math.floor(Math.random() * NUMS.length)];
+    $('#gPic').src = 'img/' + gItem[0] + '.jpg'; $('#gPic').alt = gItem[1];
+    $('#gNum').textContent = gN[0];
+    $('#gAns').innerHTML = '&nbsp;'; $('#gPy').innerHTML = '&nbsp;';
+  }
+  const gAnswer = () => gN[1] + gItem[3] + gItem[1];
+  const gPinyin = () => {
+    let n = gN[2];
+    if (gN[0] === 1) n = gItem[5] === 4 ? 'yí' : 'yì';
+    return n + ' ' + gItem[4] + ' ' + gItem[2];
+  };
+  $('#gShow').addEventListener('click', () => { $('#gAns').textContent = gAnswer(); $('#gPy').textContent = gPinyin(); });
+  $('#gSay').addEventListener('click', (e) => { $('#gAns').textContent = gAnswer(); $('#gPy').textContent = gPinyin(); speakBtn(e.currentTarget, gAnswer()); });
+  $('#gNext').addEventListener('click', gNew);
+
+  /* connect */
+  const CONN = [['一棵', 'yì kē', '樹', 'shù'], ['一個', 'yí ge', '蛋糕、洋娃娃、麵包', 'dàngāo, yángwáwa, miànbāo'], ['一輛', 'yí liàng', '腳踏車、玩具車', 'jiǎotàchē, wánjùchē'], ['一隻', 'yì zhī', '兔子、聖誕襪', 'tùzi, shèngdànwà'], ['一張', 'yì zhāng', '照片、卡片', 'zhàopiàn, kǎpiàn']];
+  $('#connect').innerHTML = '<p>每個量詞可以連到哪些東西？ <span class="py">Měi ge liàngcí kěyǐ lián dào nǎxiē dōngxi?</span></p>' + CONN.map(c =>
+    '<div class="card" style="flex-direction:row; align-items:center; gap:16px; flex-wrap:wrap;"><p class="t" style="min-width:5em;">' + c[0] + ' <span class="py">' + c[1] + '</span></p><button class="reveal-btn">看答案</button><p class="answer" hidden>' + c[2] + ' <span class="py">' + c[3] + '</span></p></div>').join('');
+
+  /* count room */
+  const ROOM = [['教室裡有幾<span class="hl">個</span>人？', 'Jiàoshì lǐ yǒu jǐ ge rén?'], ['教室裡有幾<span class="hl">張</span>桌子？', 'Jiàoshì lǐ yǒu jǐ zhāng zhuōzi?'], ['教室裡有幾<span class="hl">張</span>椅子？', 'Jiàoshì lǐ yǒu jǐ zhāng yǐzi?'], ['教室裡有幾<span class="hl">個</span>書包？', 'Jiàoshì lǐ yǒu jǐ ge shūbāo?']];
+  $('#countRoom').innerHTML = ROOM.map(r => '<div class="card"><div class="row" style="justify-content:space-between; flex-wrap:nowrap;"><p class="t">' + r[0] + '</p>' + sayBtnHTML(r[0]) + '</div><p class="py">' + r[1] + '</p></div>').join('');
+
+  /* colors */
+  const COLORS = [['紅色', 'hóngsè', '#D93A2F'], ['橘色', 'júsè', '#EE8A2A'], ['黃色', 'huángsè', '#F2CC3B'], ['綠色', 'lǜsè', '#3E9B4F'], ['藍色', 'lánsè', '#3A6FC4'], ['紫色', 'zǐsè', '#8250B5'], ['粉紅色', 'fěnhóngsè', '#F2A1C0'], ['白色', 'báisè', '#FFFFFF'], ['黑色', 'hēisè', '#222222'], ['咖啡色', 'kāfēisè', '#7A4E2D']];
+  $('#colors').innerHTML = COLORS.map(c => '<div class="card" style="align-items:center; text-align:center;"><div class="swatch" style="background:' + c[2] + '; width:100%;"></div><div class="row" style="justify-content:center;"><b style="font-size:20px; color:var(--ink);">' + c[0] + '</b>' + sayBtnHTML(c[0]) + '</div><p class="py">' + c[1] + '</p></div>').join('');
+
+  /* teacher says */
+  const CMDS = [
+    ['老師說：站起來。', 'Lǎoshī shuō: zhàn qǐlái.'], ['老師說：拍手三下。', 'Lǎoshī shuō: pāi shǒu sān xià.'], ['坐下。', 'Zuò xià.', 1],
+    ['老師說：指窗戶。', 'Lǎoshī shuō: zhǐ chuānghu.'], ['老師說：舉手。', 'Lǎoshī shuō: jǔ shǒu.'], ['老師說：跳兩下。', 'Lǎoshī shuō: tiào liǎng xià.'],
+    ['拍手。', 'Pāi shǒu.', 1], ['老師說：指一個紅色的東西。', 'Lǎoshī shuō: zhǐ yí ge hóngsè de dōngxi.'], ['老師說：說「聖誕節快樂」！', 'Lǎoshī shuō: shuō “Shèngdànjié kuàilè”!'],
+    ['老師說：做一棵聖誕樹！', 'Lǎoshī shuō: zuò yì kē shèngdànshù!'], ['老師說：伸出四根手指。', 'Lǎoshī shuō: shēn chū sì gēn shǒuzhǐ.'], ['指門。', 'Zhǐ mén.', 1],
+    ['老師說：摸摸你的頭。', 'Lǎoshī shuō: mō mo nǐ de tóu.'], ['老師說：指一個綠色的東西。', 'Lǎoshī shuō: zhǐ yí ge lǜsè de dōngxi.'], ['老師說：坐下。', 'Lǎoshī shuō: zuò xià.']
+  ];
+  $('#cmdList').innerHTML = CMDS.map(c => '<li' + (c[2] ? ' class="trap"' : '') + '>' + c[0] + (c[2] ? '（陷阱）' : '') + ' <span class="py">' + c[1] + '</span></li>').join('');
+  let cmdI = -1;
+  $('#cmdNext').addEventListener('click', (e) => {
+    cmdI = (cmdI + 1) % CMDS.length;
+    const c = CMDS[cmdI];
+    $('#cmdNow').textContent = c[0];
+    $('#cmdNow').classList.toggle('trap', !!c[2]);
+    $('#cmdPy').textContent = c[1];
+    speakBtn(e.currentTarget, c[0]);
+  });
+})();
+</script>
+
+</body>
+</html>
